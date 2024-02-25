@@ -5,7 +5,7 @@ import User from '../models/user.js';
 import auth from "../utils/auth.js";
 
 router.post('/toss', auth, async (req, res) => {
-    const { wagered_amount } = req.body;
+    const { amount: wagered_amount } = req.body;
     const user_id = req.userId;
 
     try {
@@ -27,17 +27,21 @@ router.post('/toss', auth, async (req, res) => {
 
         // Determine the outcome based on the game rules
         let payout = 0;
+        let game_result = "LOSS";
         if (result === req.body.answer) {
             // User wins
             if (user.winning_streak === 4) {
                 payout = wagered_amount * 10;
                 user.winning_streak = 0;
+                game_result = "5X";
             } else if (user.winning_streak === 2) {
                 payout = wagered_amount * 3;
                 user.winning_streak = user.winning_streak + 1;
+                game_result = "3X";
             } else {
                 payout = wagered_amount * 2;
                 user.winning_streak = user.winning_streak + 1;
+                game_result = "WIN"
             }
             user.balance += payout;
         }
@@ -58,7 +62,7 @@ router.post('/toss', auth, async (req, res) => {
         // Update user's winning streak and balance
         await user.save();
 
-        res.json({ result, payout, balance: user.balance });
+        res.json({ result, payout, balance: user.balance, game_result });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });

@@ -5,7 +5,8 @@ const historySchema = mongoose.Schema({
     answer: { type: String, enum: ['HEAD', 'TRAIL'], required: true },
     result: { type: Boolean, required: true },
     amount: { type: Number, required: true },
-    payout: { type: Number, required: true }
+    payout: { type: Number, required: true },
+    created_at: { type: Date, default: Date.now }
 });
 
 export default mongoose.model("History", historySchema);
